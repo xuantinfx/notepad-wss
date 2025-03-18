@@ -446,40 +446,109 @@ const useNotepad = () => {
   }, []);
 
   // Create a new document
-  const newDocument = useCallback(() => {
+  const newDocument = useCallback(async () => {
+    // Clear the local document first
     setState(prev => ({
       ...prev,
       document: {
+        id: undefined,
         content: '',
         filename: 'Untitled',
         saved: true
       }
     }));
-  }, []);
+    
+    // Create a new document on the server for collaboration
+    try {
+      const response = await apiRequest<Document>('/api/documents', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          filename: 'Untitled',
+          content: '',
+          lastModified: new Date().toISOString()
+        })
+      });
+      
+      if (response && response.id) {
+        setState(prev => ({
+          ...prev,
+          document: {
+            ...prev.document,
+            id: response.id
+          }
+        }));
+        
+        // Join the document for collaboration
+        if (socketRef.current?.readyState === WebSocket.OPEN) {
+          joinDocument(response.id);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to create document on server:', error);
+    }
+  }, [joinDocument]);
 
   // Open a document
-  const openDocument = useCallback(() => {
+  const openDocument = useCallback(async () => {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = '.txt';
     fileInput.style.display = 'none';
     document.body.appendChild(fileInput);
     
-    fileInput.addEventListener('change', function() {
+    fileInput.addEventListener('change', async function() {
       if (fileInput.files && fileInput.files.length > 0) {
         const file = fileInput.files[0];
         const reader = new FileReader();
         
-        reader.onload = function(e) {
+        reader.onload = async function(e) {
           if (e.target && typeof e.target.result === 'string') {
+            const fileContent = e.target.result as string;
+            // First update local state
             setState(prev => ({
               ...prev,
               document: {
-                content: e.target?.result as string || '',
+                id: undefined, // Clear any previous ID
+                content: fileContent,
                 filename: file.name,
                 saved: true
               }
             }));
+            
+            // Create a document on the server for collaboration
+            try {
+              const response = await apiRequest<Document>('/api/documents', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  filename: file.name,
+                  content: fileContent,
+                  lastModified: new Date().toISOString()
+                })
+              });
+              
+              if (response && response.id) {
+                setState(prev => ({
+                  ...prev,
+                  document: {
+                    ...prev.document,
+                    id: response.id
+                  }
+                }));
+                
+                // Join the document for collaboration
+                if (socketRef.current?.readyState === WebSocket.OPEN) {
+                  joinDocument(response.id);
+                }
+              }
+            } catch (error) {
+              console.error('Failed to create document on server:', error);
+            }
           }
         };
         
@@ -489,7 +558,7 @@ const useNotepad = () => {
     });
     
     fileInput.click();
-  }, []);
+  }, [joinDocument]);
 
   // Save document
   const saveDocument = useCallback(() => {

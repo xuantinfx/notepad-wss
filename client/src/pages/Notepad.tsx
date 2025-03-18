@@ -66,7 +66,7 @@ export default function Notepad() {
       <div className="bg-gray-100 border-b px-3 py-1 flex items-center justify-between text-sm">
         <div className="flex items-center gap-2">
           {state.collaboration.connected ? (
-            <Badge variant="success" className="flex items-center gap-1">
+            <Badge variant="outline" className="flex items-center gap-1 bg-green-100 text-green-800 border-green-300">
               <Wifi className="h-3 w-3" />
               <span>Connected</span>
             </Badge>
