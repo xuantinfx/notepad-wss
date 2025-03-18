@@ -87,7 +87,8 @@ const useNotepad = () => {
     },
     ui: {
       saveDialogOpen: false,
-      aboutDialogOpen: false
+      aboutDialogOpen: false,
+      documentListOpen: false
     },
     collaboration: {
       connected: false,
@@ -655,6 +656,50 @@ const useNotepad = () => {
       }
     }));
   }, []);
+  
+  // Show collaborative documents dialog
+  const showCollaborativeDocuments = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      ui: {
+        ...prev.ui,
+        documentListOpen: true
+      }
+    }));
+  }, []);
+  
+  // Hide collaborative documents dialog
+  const hideDocumentList = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      ui: {
+        ...prev.ui,
+        documentListOpen: false
+      }
+    }));
+  }, []);
+  
+  // Load a collaborative document
+  const loadCollaborativeDocument = useCallback((document: Document) => {
+    setState(prev => ({
+      ...prev,
+      document: {
+        id: document.id,
+        content: document.content,
+        filename: document.filename,
+        saved: true
+      },
+      ui: {
+        ...prev.ui,
+        documentListOpen: false
+      }
+    }));
+    
+    // Join the document for collaboration
+    if (socketRef.current?.readyState === WebSocket.OPEN && document.id) {
+      joinDocument(document.id);
+    }
+  }, [joinDocument]);
 
   return {
     state,
@@ -675,6 +720,9 @@ const useNotepad = () => {
       hideSaveDialog,
       showAboutDialog,
       hideAboutDialog,
+      showCollaborativeDocuments,
+      hideDocumentList,
+      loadCollaborativeDocument,
       joinDocument,
       sendCursorPosition
     }

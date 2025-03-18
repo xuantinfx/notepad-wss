@@ -4,6 +4,7 @@ import Editor from "@/components/notepad/Editor";
 import StatusBar from "@/components/notepad/StatusBar";
 import SaveDialog from "@/components/notepad/SaveDialog";
 import AboutDialog from "@/components/notepad/AboutDialog";
+import DocumentList from "@/components/notepad/DocumentList";
 import useNotepad from "@/hooks/useNotepad";
 import { Badge } from "@/components/ui/badge";
 import { UserIcon, Users, Wifi, WifiOff } from "lucide-react";
@@ -28,6 +29,9 @@ export default function Notepad() {
       showAboutDialog,
       hideSaveDialog,
       hideAboutDialog,
+      showCollaborativeDocuments,
+      hideDocumentList,
+      loadCollaborativeDocument,
       joinDocument,
       sendCursorPosition
     }
@@ -60,6 +64,7 @@ export default function Notepad() {
         zoomOut={() => changeZoom(-10)}
         resetZoom={resetZoom}
         showAboutDialog={showAboutDialog}
+        showCollaborativeDocuments={showCollaborativeDocuments}
       />
       
       {/* Collaboration status */}
@@ -120,6 +125,13 @@ export default function Notepad() {
       {state.ui.aboutDialogOpen && (
         <AboutDialog onClose={hideAboutDialog} />
       )}
+      
+      {/* Document List Dialog */}
+      <DocumentList 
+        open={state.ui.documentListOpen} 
+        onClose={hideDocumentList}
+        onSelectDocument={loadCollaborativeDocument}
+      />
     </div>
   );
 }
