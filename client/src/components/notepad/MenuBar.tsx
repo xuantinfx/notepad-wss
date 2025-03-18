@@ -14,6 +14,7 @@ interface MenuBarProps {
   zoomOut: () => void;
   resetZoom: () => void;
   showAboutDialog: () => void;
+  showCollaborativeDocuments: () => void;
 }
 
 const MenuBar: FC<MenuBarProps> = ({
@@ -29,7 +30,8 @@ const MenuBar: FC<MenuBarProps> = ({
   zoomIn,
   zoomOut,
   resetZoom,
-  showAboutDialog
+  showAboutDialog,
+  showCollaborativeDocuments
 }) => {
   return (
     <div className="bg-gray-100 border-b border-gray-300 flex flex-wrap">
@@ -48,6 +50,12 @@ const MenuBar: FC<MenuBarProps> = ({
             className="block w-full text-left px-4 py-1 hover:bg-blue-600 hover:text-white"
           >
             Open... <span className="float-right">Ctrl+O</span>
+          </button>
+          <button 
+            onClick={showCollaborativeDocuments}
+            className="block w-full text-left px-4 py-1 hover:bg-blue-600 hover:text-white"
+          >
+            Open Collaborative Document...
           </button>
           <button 
             onClick={saveDocument}

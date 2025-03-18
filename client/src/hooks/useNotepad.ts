@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { apiRequest } from '@/lib/queryClient';
 import { v4 as uuidv4 } from 'uuid';
+import { Document } from '@shared/schema';
 
 // For typechecking WebSocket messages
 type WSMessage = {
@@ -32,6 +33,7 @@ interface NotepadState {
   ui: {
     saveDialogOpen: boolean;
     aboutDialogOpen: boolean;
+    documentListOpen: boolean;
   };
   collaboration: {
     connected: boolean;
